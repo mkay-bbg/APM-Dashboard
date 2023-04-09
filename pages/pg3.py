@@ -1,30 +1,11 @@
-import numpy as np
-import pandas as pd
 import plotly.express as px
 import dash
 from dash import html, dcc, callback, Output, Input
 from dash.dependencies import Input, Output
-from datetime import datetime
 import dash_bootstrap_components as dbc
+from utils.Data import Realtime
 
 dash.register_page(__name__, name='Predictive Analysis')
-
-df = pd.read_csv('data_v1.1.csv')
-
-df['datetime'] = pd.to_datetime(df['datetime'])
-df["time"] = df['datetime'].dt.time
-df["date"] = df['datetime'].dt.date
-df['Net Change'] = df['ppl_in'] - df['ppl_out']
-df = df.groupby(['datetime', 'date', 'time', 'Car', 'door',
-                'ppl_out', 'ppl_in', 'Net Change']).count()
-df.reset_index(inplace=True)
-
-dfc1 = df[df['Car'] == 1]
-dfc2 = df[df['Car'] == 2]
-dfc1d1 = dfc1[dfc1['door'] == 1]
-dfc1d2 = dfc1[dfc1['door'] == 2]
-dfc2d1 = dfc2[dfc2['door'] == 1]
-dfc2d2 = dfc2[dfc2['door'] == 2]
 
 # Define the layout for the overview page
 Overview_content = dbc.Card(
@@ -33,8 +14,7 @@ Overview_content = dbc.Card(
             dbc.Row(
                 [
                     dbc.Col(
-                        [dcc.Graph(figure=px.line(
-                            df, x=df['datetime'], y=df['Net Change'], title='Net Change'))
+                        [dcc.Graph(figure=Realtime.summary_plot())
                          ], width=12
                     )
                 ]
@@ -54,8 +34,7 @@ Car_1_content = dbc.Card(
                         [
                             dcc.Graph(
                                 id='entering-exiting-graph',
-                                figure=px.line(df, x='datetime', y=[
-                                    'ppl_in', 'ppl_out'], title='People Entering and Exiting')
+                                figure=Realtime.flow_plot()
                             )
                         ], width=12
                     )
@@ -75,8 +54,7 @@ Car_2_content = dbc.Card(
                         [
                             dcc.Graph(
                                 id='total-count-graph',
-                                figure=px.line(df, x='datetime', y='Net Change',
-                                               title='Total People Count')
+                                figure=Realtime.total_count_plot()
                             )
                         ], width=12
                     )

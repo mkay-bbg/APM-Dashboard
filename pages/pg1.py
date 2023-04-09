@@ -1,49 +1,47 @@
-import numpy as np
-import pandas as pd
 import plotly.express as px
 import dash
 from dash import html, dcc, callback, Output, Input
 from dash.dependencies import Input, Output
-from datetime import datetime
 import dash_bootstrap_components as dbc
+from utils.Data import Realtime, KPI, C1_Subseries, C2_Subseries
 
 
 # '/' is home page
 dash.register_page(__name__, path='/', name='Overview and Summary')
 
 
-df = pd.read_csv('data_v1.1.csv')
+# df = pd.read_csv('data_v1.1.csv')
 
-# Data manipulation
-df['datetime'] = pd.to_datetime(df['datetime'])
-df["time"] = df['datetime'].dt.time
-df["date"] = df['datetime'].dt.date
-df['Net Change'] = df['ppl_in'] - df['ppl_out']
-
-
-Capacity_per_car = 76
-df['Ppl Onboard'] = df['Net Change'].cumsum()
-df['Occupancy Rate'] = df['Ppl Onboard'] / Capacity_per_car
+# # Data manipulation
+# df['datetime'] = pd.to_datetime(df['datetime'])
+# df["time"] = df['datetime'].dt.time
+# df["date"] = df['datetime'].dt.date
+# df['Net Change'] = df['ppl_in'] - df['ppl_out']
 
 
-df = df.groupby(['datetime', 'date', 'time', 'Car', 'door',
-                'ppl_out', 'ppl_in', 'Net Change', 'Ppl Onboard', 'Occupancy Rate']).count()
-df.reset_index(inplace=True)
+# Capacity_per_car = 76
+# df['Ppl Onboard'] = df['Net Change'].cumsum()
+# df['Occupancy Rate'] = df['Ppl Onboard'] / Capacity_per_car
+
+
+# df = df.groupby(['datetime', 'date', 'time', 'Car', 'door',
+#                 'ppl_out', 'ppl_in', 'Net Change', 'Ppl Onboard', 'Occupancy Rate']).count()
+# df.reset_index(inplace=True)
 
 # Calculate the key figures
-occupancy_rate = float(df['Occupancy Rate'].tail(1))
-occupancy_rate_percent = "{:.2%}".format(occupancy_rate)
-ppl_onboard = int(df['Ppl Onboard'].tail(1))
-traffic = int(df['ppl_in'].sum())
-average_traffic = float((df['ppl_in'].mean()))
+# occupancy_rate = float(df['Occupancy Rate'].tail(1))
+# occupancy_rate_percent = "{:.2%}".format(occupancy_rate)
+# ppl_onboard = int(df['Ppl Onboard'].tail(1))
+# traffic = int(df['ppl_in'].sum())
+# average_traffic = float((df['ppl_in'].mean()))
 
-# Generate the lower level dataframes
-dfc1 = df[df['Car'] == 1]
-dfc2 = df[df['Car'] == 2]
-dfc1d1 = dfc1[dfc1['door'] == 1]
-dfc1d2 = dfc1[dfc1['door'] == 2]
-dfc2d1 = dfc2[dfc2['door'] == 1]
-dfc2d2 = dfc2[dfc2['door'] == 2]
+# # Generate the lower level dataframes
+# dfc1 = df[df['Car'] == 1]
+# dfc2 = df[df['Car'] == 2]
+# dfc1d1 = dfc1[dfc1['door'] == 1]
+# dfc1d2 = dfc1[dfc1['door'] == 2]
+# dfc2d1 = dfc2[dfc2['door'] == 1]
+# dfc2d2 = dfc2[dfc2['door'] == 2]
 
 # Define the layout for the overview tab
 # Overview_content = dbc.Card(
@@ -73,7 +71,7 @@ Overview_content = html.Div(
                             [
                                 html.H5("Occupancy Rate",
                                         className="card-title"),
-                                html.P(occupancy_rate_percent
+                                html.P(KPI.occupancy_rate_percent()
                                        ),
                             ]
                         )
@@ -84,7 +82,7 @@ Overview_content = html.Div(
                                 html.H5("Passenger Volume",
                                         className="card-title"),
                                 html.P(
-                                    traffic
+                                    KPI.traffic()
                                 ),
                             ]
                         )
@@ -95,7 +93,7 @@ Overview_content = html.Div(
                                 html.H5("People Onboard",
                                         className="card-title"),
                                 html.P(
-                                    ppl_onboard
+                                    KPI.ppl_onboard()
                                 ),
                             ]
                         )
@@ -106,7 +104,7 @@ Overview_content = html.Div(
                                 html.H5("Avg. Passenger Flow",
                                         className="card-title"),
                                 html.P(
-                                    f'{average_traffic:.2f}'
+                                    f'{KPI.average_traffic():.2f}'
                                 )
                             ]
                         )
@@ -121,8 +119,7 @@ Overview_content = html.Div(
                         dbc.Row(
                             [
                                 dbc.Col(
-                                    [dcc.Graph(figure=px.line(
-                                        df, x=df['datetime'], y=df['Net Change'], title='Net Change'))
+                                    [dcc.Graph(figure=Realtime.net_change_plot())
                                      ], width=12
                                 )
                             ]
@@ -143,12 +140,9 @@ Performance_content = dbc.Card(
                 [
                     dbc.Col(
                         [
-                            dcc.Graph(figure=px.line(
-                                dfc1, x='datetime', y=dfc1.columns[5:], title='People in and out over time')),
-                            dcc.Graph(figure=px.line(
-                                dfc1, x=dfc1['time'], y=dfc1.columns[5:], title='Average people inflow and outflow over time of every minute')),
-                            dcc.Graph(figure=px.line(
-                                dfc1, x=dfc1['datetime'], y=dfc1['Net Change'], title='Net Change'))
+                            dcc.Graph(figure=C1_Subseries.flow_plot()),
+                            dcc.Graph(figure=C1_Subseries.min_subplot()),
+                            dcc.Graph(figure=C1_Subseries.net_change_plot())
                         ], width=12
                     )
                 ]
@@ -165,12 +159,9 @@ Suggestion_content = dbc.Card(
                 [
                     dbc.Col(
                         [
-                            dcc.Graph(figure=px.line(
-                                dfc2, x='datetime', y=dfc2.columns[5:], title='People in and out over time')),
-                            dcc.Graph(figure=px.line(
-                                dfc2, x=dfc2['time'], y=dfc2.columns[5:], title='Average people inflow and outflow over time of every minute')),
-                            dcc.Graph(figure=px.line(
-                                dfc2, x=dfc2['datetime'], y=dfc2['Net Change'], title='Net Change'))
+                            dcc.Graph(figure=C2_Subseries.flow_plot()),
+                            dcc.Graph(figure=C2_Subseries.min_subplot()),
+                            dcc.Graph(figure=C2_Subseries.net_change_plot())
                         ], width=12
                     )
                 ]
