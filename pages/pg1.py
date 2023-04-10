@@ -9,58 +9,6 @@ from utils.Data import Realtime, KPI, C1_Subseries, C2_Subseries
 # '/' is home page
 dash.register_page(__name__, path='/', name='Overview and Summary')
 
-
-# df = pd.read_csv('data_v1.1.csv')
-
-# # Data manipulation
-# df['datetime'] = pd.to_datetime(df['datetime'])
-# df["time"] = df['datetime'].dt.time
-# df["date"] = df['datetime'].dt.date
-# df['Net Change'] = df['ppl_in'] - df['ppl_out']
-
-
-# Capacity_per_car = 76
-# df['Ppl Onboard'] = df['Net Change'].cumsum()
-# df['Occupancy Rate'] = df['Ppl Onboard'] / Capacity_per_car
-
-
-# df = df.groupby(['datetime', 'date', 'time', 'Car', 'door',
-#                 'ppl_out', 'ppl_in', 'Net Change', 'Ppl Onboard', 'Occupancy Rate']).count()
-# df.reset_index(inplace=True)
-
-# Calculate the key figures
-# occupancy_rate = float(df['Occupancy Rate'].tail(1))
-# occupancy_rate_percent = "{:.2%}".format(occupancy_rate)
-# ppl_onboard = int(df['Ppl Onboard'].tail(1))
-# traffic = int(df['ppl_in'].sum())
-# average_traffic = float((df['ppl_in'].mean()))
-
-# # Generate the lower level dataframes
-# dfc1 = df[df['Car'] == 1]
-# dfc2 = df[df['Car'] == 2]
-# dfc1d1 = dfc1[dfc1['door'] == 1]
-# dfc1d2 = dfc1[dfc1['door'] == 2]
-# dfc2d1 = dfc2[dfc2['door'] == 1]
-# dfc2d2 = dfc2[dfc2['door'] == 2]
-
-# Define the layout for the overview tab
-# Overview_content = dbc.Card(
-#     dbc.CardBody(
-#         [
-#             dbc.Row(
-#                 [
-#                     dbc.Col(
-#                         [dcc.Graph(figure=px.line(
-#                             df, x=df['datetime'], y=df['Net Change'], title='Net Change'))
-#                          ], width=12
-#                     )
-#                 ]
-#             ),
-#         ]
-#     ),
-#     className="mt-3",
-# )
-
 Overview_content = html.Div(
     [
         dbc.Col(
@@ -119,7 +67,7 @@ Overview_content = html.Div(
                         dbc.Row(
                             [
                                 dbc.Col(
-                                    [dcc.Graph(figure=Realtime.net_change_plot())
+                                    [dcc.Graph(figure=Realtime.summary_plot())
                                      ], width=12
                                 )
                             ]
@@ -132,55 +80,210 @@ Overview_content = html.Div(
 )
 
 
-# Define the layout for the performance tab
-Performance_content = dbc.Card(
-    dbc.CardBody(
-        [
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dcc.Graph(figure=C1_Subseries.flow_plot()),
-                            dcc.Graph(figure=C1_Subseries.min_subplot()),
-                            dcc.Graph(figure=C1_Subseries.net_change_plot())
-                        ], width=12
-                    )
-                ]
-            ),
-        ]
-    ),
-    className="mt-3",
+# # Define the layout for the trainflow tab
+# Performance_content = dbc.Card(
+#     dbc.CardBody(
+#         [
+#             dbc.Row(
+#                 [
+#                     dbc.Col(
+#                         [
+#                             dcc.Graph(figure=C1_Subseries.flow_plot()),
+#                             dcc.Graph(figure=C1_Subseries.min_subplot())
+#                         ], width=12
+#                     )
+#                 ]
+#             ),
+#         ]
+#     ),
+#     className="mt-3",
+# )
+
+Performance_content = html.Div(
+    [
+        dbc.Accordion(
+            [
+                dbc.AccordionItem(
+                    html.Div(id="C1-item-content"),
+                    title="Car 1",
+                    item_id="C1-item",
+                ),
+                dbc.AccordionItem(
+                    html.Div(id="C1D1-item-content"),
+                    title="Door 1",
+                    item_id="C1D1-item",
+                ),
+                dbc.AccordionItem(
+                    html.Div(id="C1D2-item-content"),
+                    title="Door 2",
+                    item_id="C1D2-item",
+                )
+            ],
+            id="accordion-C1-pg2",
+            active_item="C1-item",
+            always_open=True,
+        )
+    ]
 )
+
+accordion_C1_content = [
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                [
+                                                    dcc.Graph(figure=C1_Subseries.flow_plot()),
+                                                    dcc.Graph(figure=C1_Subseries.min_subplot())
+                                                ], width=12
+                                            )
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            className="mt-3",
+                        )
+                    ]
+
+accordion_C1D1_content = [
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                [
+                                                    dcc.Graph(figure=C1_Subseries.d1_flow_plot()),
+                                                    dcc.Graph(figure=C1_Subseries.d1_min_subplot())
+                                                ], width=12
+                                            )
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            className="mt-3",
+                        )
+                    ]
+
+accordion_C1D2_content = [
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                [
+                                                    dcc.Graph(figure=C1_Subseries.d2_flow_plot()),
+                                                    dcc.Graph(figure=C1_Subseries.d2_min_subplot())                                                   
+                                                ], width=12
+                                            )
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            className="mt-3",
+                        )
+                    ]
+
 # Define the layout for the suggestion tab
-Suggestion_content = dbc.Card(
-    dbc.CardBody(
-        [
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dcc.Graph(figure=C2_Subseries.flow_plot()),
-                            dcc.Graph(figure=C2_Subseries.min_subplot()),
-                            dcc.Graph(figure=C2_Subseries.net_change_plot())
-                        ], width=12
-                    )
-                ]
-            ),
-        ]
-    ),
-    className="mt-3",
+Suggestion_content = html.Div(
+    [
+        dbc.Accordion(
+            [
+                dbc.AccordionItem(
+                    html.Div(id="C2-item-content"),
+                    title="Car 2",
+                    item_id="C2-item",
+                ),
+                dbc.AccordionItem(
+                    html.Div(id="C2D1-item-content"),
+                    title="Door 1",
+                    item_id="C2D1-item",
+                ),
+                dbc.AccordionItem(
+                    html.Div(id="C2D2-item-content"),
+                    title="Door 2",
+                    item_id="C2D2-item",
+                )
+            ],
+            id="accordion-C2-pg2",
+            active_item="C2-item",
+            always_open=True,
+        )
+    ]
 )
+
+accordion_C2_content = [
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                [
+                                                    dcc.Graph(figure=C2_Subseries.flow_plot()),
+                                                    dcc.Graph(figure=C2_Subseries.min_subplot())
+                                                ], width=12
+                                            )
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            className="mt-3",
+                        )
+                    ]
+
+accordion_C2D1_content = [
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                [
+                                                    dcc.Graph(figure=C2_Subseries.d1_flow_plot()),
+                                                    dcc.Graph(figure=C2_Subseries.d1_min_subplot())
+                                                ], width=12
+                                            )
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            className="mt-3",
+                        )
+                    ]
+
+accordion_C2D2_content = [
+                        dbc.Card(
+                            dbc.CardBody(
+                                [
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                [
+                                                    dcc.Graph(figure=C2_Subseries.d2_flow_plot()),
+                                                    dcc.Graph(figure=C2_Subseries.d2_min_subplot())
+                                                ], width=12
+                                            )
+                                        ]
+                                    ),
+                                ]
+                            ),
+                            className="mt-3",
+                        )
+                    ]
 
 # Define the app layout
 layout = html.Div(
     [
         dbc.Tabs(
             [
-                dbc.Tab(label="Overview",
+                dbc.Tab(label="Overview & KPIs",
                         tab_id="tab-overview"),
-                dbc.Tab(label="Performance",
+                dbc.Tab(label="Train 1 flow",
                         tab_id="tab-performance"),
-                dbc.Tab(label="Suggestion",
+                dbc.Tab(label="Train 2 flow",
                         tab_id="tab-suggestion")
             ],
             id="tabs-pg1",
