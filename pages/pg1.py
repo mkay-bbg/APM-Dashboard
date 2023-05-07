@@ -19,7 +19,7 @@ Overview_content = html.Div(
                             [
                                 html.H5("Occupancy Rate",
                                         className="card-title"),
-                                html.P(KPI.occupancy_rate_percent()
+                                html.P("42.2%"#KPI.occupancy_rate_percent()
                                        ),
                             ]
                         )
@@ -41,7 +41,7 @@ Overview_content = html.Div(
                                 html.H5("People Onboard",
                                         className="card-title"),
                                 html.P(
-                                    KPI.ppl_onboard()
+                                    "42"#KPI.ppl_onboard()
                                 ),
                             ]
                         )
@@ -52,7 +52,7 @@ Overview_content = html.Div(
                                 html.H5("Avg. Passenger Flow",
                                         className="card-title"),
                                 html.P(
-                                    f'{KPI.average_traffic():.2f}'
+                                    "24.4"#f'{KPI.average_traffic():.2f}'
                                 )
                             ]
                         )
@@ -304,3 +304,57 @@ def switch_tab(at):
         return Performance_content
     elif at == "tab-suggestion":
         return Suggestion_content
+    
+# Define the callback for C1 item in Car 1 tab accordion  
+@callback(
+    Output("C1-item-content", "children"),
+    [Input("accordion-C1-pg2", "active_item")],
+)
+def change_item_C1(item):
+    if "C1-item" in item:
+        return accordion_C1_content
+
+# Define the callback for C1D1 item in Car 1 tab accordion  
+@callback(
+    Output("C1D1-item-content", "children"),
+    [Input("accordion-C1-pg2", "active_item")],
+)
+def change_item_C1D1(item):
+    if "C1D1-item" in item:
+        return accordion_C1D1_content
+
+# Define the callback for C1D2 item in Car 1 tab accordion 
+@callback(
+    Output("C1D2-item-content", "children"),
+    [Input("accordion-C1-pg2", "active_item")],
+)
+def change_item_C1D2(item):
+    if "C1D2-item" in item:
+        return accordion_C1D2_content
+
+# Define the callback for C2 item in Car 2 tab accordion 
+@callback(
+    Output("C2-item-content", "children"),
+    [Input("accordion-C2-pg2", "active_item")],
+)
+def change_item_C2(item):
+    if "C2-item" in item:
+        return accordion_C2_content
+
+# Define the callback for C2D1 item in Car 2 tab accordion 
+@callback(
+    Output("C2D1-item-content", "children"),
+    [Input("accordion-C2-pg2", "active_item")],
+)
+def change_item_C2D1(item):
+    if "C2D1-item" in item:
+        return accordion_C2D1_content
+
+# Define the callback for C2D2 item in Car 2 tab accordion 
+@callback(
+    Output("C2D2-item-content", "children"),
+    [Input("accordion-C2-pg2", "active_item")],
+)
+def change_item_C2D2(item):
+    if "C2D2-item" in item:
+        return accordion_C2D2_content

@@ -54,22 +54,22 @@ Car_1_content = html.Div(
         dbc.Accordion(
             [
                 dbc.AccordionItem(
-                    html.Div(id="C1-item-content"),
+                    html.Div(id="MA1-item-content"),
                     title="15 Minutes moving average",
                     item_id="C1-item",
                 ),
                 dbc.AccordionItem(
-                    html.Div(id="C1D1-item-content"),
+                    html.Div(id="MA2-item-content"),
                     title="1 Hour moving average",
                     item_id="C1D1-item",
                 ),
                 dbc.AccordionItem(
-                    html.Div(id="C1D2-item-content"),
+                    html.Div(id="MA3-item-content"),
                     title="1 Day moving average",
                     item_id="C1D2-item",
                 )
             ],
-            id="accordion-C1-pg2",
+            id="accordion-MA",
             active_item="C1-item",
             always_open=True,
         )
@@ -230,9 +230,9 @@ layout = html.Div(
                 dbc.Tab(label="Daily level analysis",
                         tab_id="tab-overview"),
                 dbc.Tab(label="Moving average of people flow",
-                        tab_id="tab-car-1"),
-                dbc.Tab(label="Car 2 Data",
-                        tab_id="tab-car-2")
+                        tab_id="tab-car-1")
+                # dbc.Tab(label="Car 2 Data",
+                #         tab_id="tab-car-2")
             ],
             id="tabs-pg2",
             active_tab="tab-overview",
@@ -248,13 +248,14 @@ def switch_tab(tab):
         return Overview_content
     elif tab == "tab-car-1":
         return Car_1_content
-    elif tab == "tab-car-2":
-        return Car_2_content
+    # elif tab == "tab-car-2":
+    #     return Car_2_content
+
 
 # Define the callback for C1 item in Car 1 tab accordion  
 @callback(
-    Output("C1-item-content", "children"),
-    [Input("accordion-C1-pg2", "active_item")],
+    Output("MA1-item-content", "children"),
+    [Input("accordion-MA", "active_item")],
 )
 def change_item_C1(item):
     if "C1-item" in item:
@@ -262,8 +263,8 @@ def change_item_C1(item):
 
 # Define the callback for C1D1 item in Car 1 tab accordion  
 @callback(
-    Output("C1D1-item-content", "children"),
-    [Input("accordion-C1-pg2", "active_item")],
+    Output("MA2-item-content", "children"),
+    [Input("accordion-MA", "active_item")],
 )
 def change_item_C1D1(item):
     if "C1D1-item" in item:
@@ -271,36 +272,9 @@ def change_item_C1D1(item):
 
 # Define the callback for C1D2 item in Car 1 tab accordion 
 @callback(
-    Output("C1D2-item-content", "children"),
-    [Input("accordion-C1-pg2", "active_item")],
+    Output("MA3-item-content", "children"),
+    [Input("accordion-MA", "active_item")],
 )
 def change_item_C1D2(item):
     if "C1D2-item" in item:
         return accordion_C1D2_content
-
-# Define the callback for C2 item in Car 2 tab accordion 
-@callback(
-    Output("C2-item-content", "children"),
-    [Input("accordion-C2-pg2", "active_item")],
-)
-def change_item_C2(item):
-    if "C2-item" in item:
-        return accordion_C2_content
-
-# Define the callback for C2D1 item in Car 2 tab accordion 
-@callback(
-    Output("C2D1-item-content", "children"),
-    [Input("accordion-C2-pg2", "active_item")],
-)
-def change_item_C2D1(item):
-    if "C2D1-item" in item:
-        return accordion_C2D1_content
-
-# Define the callback for C2D2 item in Car 2 tab accordion 
-@callback(
-    Output("C2D2-item-content", "children"),
-    [Input("accordion-C2-pg2", "active_item")],
-)
-def change_item_C2D2(item):
-    if "C2D2-item" in item:
-        return accordion_C2D2_content

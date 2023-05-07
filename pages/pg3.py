@@ -4,6 +4,8 @@ from dash import html, dcc, callback, Output, Input
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 from utils.Data import Realtime
+from utils import Pred_in
+from utils import Pred_out
 
 dash.register_page(__name__, name='Predictive Analysis')
 
@@ -14,7 +16,7 @@ Overview_content = dbc.Card(
             dbc.Row(
                 [
                     dbc.Col(
-                        [dcc.Graph(figure=Realtime.summary_plot())
+                        [dcc.Graph(figure=Pred_in.Prediction.in_pred())
                          ], width=12
                     )
                 ]
@@ -34,7 +36,7 @@ Car_1_content = dbc.Card(
                         [
                             dcc.Graph(
                                 id='entering-exiting-graph',
-                                figure=Realtime.flow_plot()
+                                figure=Pred_out.Prediction.out_pred()
                             )
                         ], width=12
                     )
@@ -70,12 +72,12 @@ layout = html.Div(
     [
         dbc.Tabs(
             [
-                dbc.Tab(label="Overview",
+                dbc.Tab(label="Outflow prediction",
                         tab_id="tab-overview"),
-                dbc.Tab(label="Car 1 Data",
-                        tab_id="tab-car-1"),
-                dbc.Tab(label="Car 2 Data",
-                        tab_id="tab-car-2")
+                dbc.Tab(label="Inflow prediction",
+                        tab_id="tab-car-1")
+                # dbc.Tab(label="Car 2 Data",
+                #         tab_id="tab-car-2")
             ],
             id="tabs-pg3",
             active_tab="tab-overview",
@@ -91,5 +93,5 @@ def switch_tab(at):
         return Overview_content
     elif at == "tab-car-1":
         return Car_1_content
-    elif at == "tab-car-2":
-        return Car_2_content
+    # elif at == "tab-car-2":
+    #     return Car_2_content
